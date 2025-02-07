@@ -80,23 +80,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resizeToTargetSize(targetSize) {
-        let quality = 0.9;
+        let minQuality = 0.05;
+        let maxQuality = 1.0;
+        let iterations = 15; // Increased iterations for better accuracy
 
-        const adjustQuality = () => {
+        function attemptResize(currentQuality, attempt = 1) {
             canvas.toBlob(blob => {
-                if (blob.size > targetSize && quality > 0.1) {
-                    quality -= 0.05;
-                    adjustQuality();
-                } else if (blob.size < targetSize * 0.9 && quality < 0.95) {
-                    quality += 0.02;
-                    adjustQuality();
-                } else {
+                if (Math.abs(blob.size - targetSize) < 1024 || attempt >= iterations) {
                     downloadImage(blob);
+                } else if (blob.size > targetSize) {
+                    maxQuality = currentQuality;
+                } else {
+                    minQuality = currentQuality;
                 }
-            }, 'image/jpeg', quality);
-        };
 
-        adjustQuality();
+                if (attempt < iterations) {
+                    currentQuality = (minQuality + maxQuality) / 2;
+                    attemptResize(currentQuality, attempt + 1);
+                }
+            }, 'image/jpeg', currentQuality);
+        }
+
+        attemptResize(0.75);
     }
 
     function downloadImage(blob) {
