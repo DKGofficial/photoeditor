@@ -3,47 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Photo Editor</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Photo Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .editor-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        canvas {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .controls div {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"], input[type="number"] {
+            width: 100%;
+        }
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Advanced Photo Editor</h1>
+    <div class="editor-container">
+        <h1>Photo Editor</h1>
         <input type="file" id="upload" accept="image/*">
-        <div class="editor">
-            <canvas id="canvas"></canvas>
-        </div>
+        <canvas id="canvas"></canvas>
+
         <div class="controls">
-            <label>Brightness</label>
-            <input type="range" id="brightness" min="0" max="200" value="100">
-
-            <label>Contrast</label>
-            <input type="range" id="contrast" min="0" max="200" value="100">
-
-            <label>Grayscale</label>
-            <input type="range" id="grayscale" min="0" max="100" value="0">
-
-            <label>Sepia</label>
-            <input type="range" id="sepia" min="0" max="100" value="0">
-
-            <label>Invert</label>
-            <input type="range" id="invert" min="0" max="100" value="0">
-
-            <label>Hue Rotate</label>
-            <input type="range" id="hueRotate" min="0" max="360" value="0">
-
-            <label>Saturation</label>
-            <input type="range" id="saturate" min="0" max="200" value="100">
-
-            <h3>Resize Image</h3>
-            <label>Width (px)</label>
-            <input type="number" id="resizeWidth" min="1">
-            <label>Height (px)</label>
-            <input type="number" id="resizeHeight" min="1">
-            <button id="applyResize">Apply Resize</button>
+            <div>
+                <label for="brightness">Brightness</label>
+                <input type="range" id="brightness" min="0" max="200" value="100">
+            </div>
+            <div>
+                <label for="contrast">Contrast</label>
+                <input type="range" id="contrast" min="0" max="200" value="100">
+            </div>
+            <div>
+                <label for="grayscale">Grayscale</label>
+                <input type="range" id="grayscale" min="0" max="100" value="0">
+            </div>
+            <div>
+                <label for="sepia">Sepia</label>
+                <input type="range" id="sepia" min="0" max="100" value="0">
+            </div>
+            <div>
+                <label for="invert">Invert</label>
+                <input type="range" id="invert" min="0" max="100" value="0">
+            </div>
+            <div>
+                <label for="hueRotate">Hue Rotate</label>
+                <input type="range" id="hueRotate" min="0" max="360" value="0">
+            </div>
+            <div>
+                <label for="saturate">Saturate</label>
+                <input type="range" id="saturate" min="0" max="200" value="100">
+            </div>
         </div>
+
+        <h2>Resize Options</h2>
+        <div class="controls">
+            <div>
+                <label for="resizeWidth">Width (px)</label>
+                <input type="number" id="resizeWidth" min="1">
+            </div>
+            <div>
+                <label for="resizeHeight">Height (px)</label>
+                <input type="number" id="resizeHeight" min="1">
+            </div>
+            <div>
+                <label for="resizeKB">Target Size (KB)</label>
+                <input type="number" id="resizeKB" min="1">
+            </div>
+        </div>
+
+        <button id="applyResize">Apply Resize</button>
         <button id="reset">Reset</button>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
