@@ -4,76 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photo Editor</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #eef2f7;
-            margin: 0;
-            padding: 20px;
-        }
-        .editor-container {
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            max-width: 900px;
-            width: 100%;
-        }
-        h1, h2 {
-            text-align: center;
-            color: #333333;
-        }
-        canvas {
-            max-width: 100%;
-            border: 2px solid #d1d9e6;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .controls div {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555555;
-        }
-        input[type="range"], input[type="number"] {
-            width: 100%;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background: #f9f9f9;
-        }
-        button {
-            padding: 12px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        button:active {
-            background-color: #004494;
-        }
-        #upload {
-            margin-bottom: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="editor-container">
@@ -82,55 +13,28 @@
         <canvas id="canvas"></canvas>
 
         <div class="controls">
-            <div>
-                <label for="brightness">Brightness</label>
-                <input type="range" id="brightness" min="0" max="200" value="100">
-            </div>
-            <div>
-                <label for="contrast">Contrast</label>
-                <input type="range" id="contrast" min="0" max="200" value="100">
-            </div>
-            <div>
-                <label for="grayscale">Grayscale</label>
-                <input type="range" id="grayscale" min="0" max="100" value="0">
-            </div>
-            <div>
-                <label for="sepia">Sepia</label>
-                <input type="range" id="sepia" min="0" max="100" value="0">
-            </div>
-            <div>
-                <label for="invert">Invert</label>
-                <input type="range" id="invert" min="0" max="100" value="0">
-            </div>
-            <div>
-                <label for="hueRotate">Hue Rotate</label>
-                <input type="range" id="hueRotate" min="0" max="360" value="0">
-            </div>
-            <div>
-                <label for="saturate">Saturate</label>
-                <input type="range" id="saturate" min="0" max="200" value="100">
-            </div>
+            <h2>Filters</h2>
+            <label>Brightness: <input type="range" id="brightness" min="0" max="200" value="100"></label>
+            <label>Contrast: <input type="range" id="contrast" min="0" max="200" value="100"></label>
+            <label>Grayscale: <input type="range" id="grayscale" min="0" max="100" value="0"></label>
+            <label>Sepia: <input type="range" id="sepia" min="0" max="100" value="0"></label>
+            <label>Invert: <input type="range" id="invert" min="0" max="100" value="0"></label>
+            <label>Hue Rotate: <input type="range" id="hueRotate" min="0" max="360" value="0"></label>
+            <label>Saturate: <input type="range" id="saturate" min="0" max="200" value="100"></label>
         </div>
 
-        <h2>Resize Options</h2>
-        <div class="controls">
-            <div>
-                <label for="resizeWidth">Width (px)</label>
-                <input type="number" id="resizeWidth" min="1">
-            </div>
-            <div>
-                <label for="resizeHeight">Height (px)</label>
-                <input type="number" id="resizeHeight" min="1">
-            </div>
-            <div>
-                <label for="resizeKB">Target Size (KB)</label>
-                <input type="number" id="resizeKB" min="1">
-            </div>
+        <div class="resize-controls">
+            <h2>Resize Options</h2>
+            <label>Width (px): <input type="number" id="resizeWidth"></label>
+            <label>Height (px): <input type="number" id="resizeHeight"></label>
+            <label>Target Size (KB): <input type="number" id="resizeKB"></label>
+            <button id="applyResize">Apply Resize</button>
         </div>
 
-        <button id="applyResize">Apply Resize</button>
-        <button id="reset">Reset</button>
-        <button id="download">Download Image</button>
+        <div class="action-buttons">
+            <button id="download">Download Image</button>
+            <button id="reset">Reset</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
