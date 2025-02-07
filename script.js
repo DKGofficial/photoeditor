@@ -54,48 +54,61 @@ applyResize.addEventListener('click', () => {
     const height = parseInt(resizeHeight.value);
     const targetKB = parseInt(resizeKB.value);
 
-    if (width > 0 && height > 0) {
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
-
-        tempCanvas.width = width;
-        tempCanvas.height = height;
-
-        tempCtx.drawImage(image, 0, 0, width, height);
-
-        if (targetKB > 0) {
-            let quality = 1.0;
-            let output = tempCanvas.toDataURL('image/jpeg', quality);
-
-            const adjustQuality = () => {
-                if ((output.length / 1024) > targetKB && quality > 0.01) {
-                    quality -= 0.01;
-                    output = tempCanvas.toDataURL('image/jpeg', quality);
-                    setTimeout(adjustQuality, 10);
-                } else {
-                    const img = new Image();
-                    img.src = output;
-                    img.onload = () => {
-                        canvas.width = width;
-                        canvas.height = height;
-                        ctx.clearRect(0, 0, width, height);
-                        ctx.drawImage(img, 0, 0);
-                        applyFilters();
-                    };
-                }
-            };
-
-            adjustQuality();
-
-        } else {
-            canvas.width = width;
-            canvas.height = height;
-            ctx.clearRect(0, 0, width, height);
-            ctx.drawImage(tempCanvas, 0, 0);
-            applyFilters();
-        }
+    if (targetKB > 0) {
+        resizeByKB(targetKB);
+    } else if (width > 0 && height > 0) {
+        resizeByPixels(width, height);
     }
 });
+
+function resizeByPixels(width, height) {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+
+    tempCanvas.width = width;
+    tempCanvas.height = height;
+
+    tempCtx.drawImage(image, 0, 0, width, height);
+    
+    canvas.width = width;
+    canvas.height = height;
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(tempCanvas, 0, 0);
+    applyFilters();
+}
+
+function resizeByKB(targetKB) {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+
+    tempCanvas.width = image.width;
+    tempCanvas.height = image.height;
+
+    tempCtx.drawImage(image, 0, 0);
+
+    let quality = 1.0;
+    let output = tempCanvas.toDataURL('image/jpeg', quality);
+
+    const adjustQuality = () => {
+        if ((output.length / 1024) > targetKB && quality > 0.01) {
+            quality -= 0.01;
+            output = tempCanvas.toDataURL('image/jpeg', quality);
+            setTimeout(adjustQuality, 10);
+        } else {
+            const img = new Image();
+            img.src = output;
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.clearRect(0, 0, img.width, img.height);
+                ctx.drawImage(img, 0, 0);
+                applyFilters();
+            };
+        }
+    };
+
+    adjustQuality();
+}
 
 reset.addEventListener('click', () => {
     brightness.value = 100;
