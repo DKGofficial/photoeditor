@@ -62,30 +62,38 @@ function resizeImage(width, height) {
 }
 
 function resizeToTargetSize(targetKB) {
-    let quality = 0.9;
-    const targetBytes = targetKB * 1024;
     let minQuality = 0.1;
     let maxQuality = 1.0;
+    const targetBytes = targetKB * 1024;
     let iteration = 0;
 
     function attemptResize() {
         iteration++;
         canvas.toBlob(blob => {
             const currentSize = blob.size;
-            if (Math.abs(currentSize - targetBytes) < 256 || iteration > 30) {
+            if (Math.abs(currentSize - targetBytes) <= 128 || iteration > 50) {
                 downloadBlob(blob);
             } else {
                 if (currentSize > targetBytes) {
-                    maxQuality = quality;
-                    quality = (quality + minQuality) / 2;
+                    maxQuality = (maxQuality + minQuality) / 2;
                 } else {
-                    minQuality = quality;
-                    quality = (quality + maxQuality) / 2;
+                    minQuality = (maxQuality + minQuality) / 2;
                 }
+                attemptResizeWithQuality((maxQuality + minQuality) / 2);
+            }
+        }, 'image/jpeg', (maxQuality + minQuality) / 2);
+    }
+
+    function attemptResizeWithQuality(quality) {
+        canvas.toBlob(blob => {
+            if (Math.abs(blob.size - targetBytes) <= 128) {
+                downloadBlob(blob);
+            } else {
                 attemptResize();
             }
         }, 'image/jpeg', quality);
     }
+
     attemptResize();
 }
 
