@@ -63,13 +63,15 @@ applyResize.addEventListener('click', () => {
 
         tempCtx.drawImage(image, 0, 0, width, height);
 
-        let quality = 1.0;
         if (targetKB > 0) {
+            let quality = 1.0;
             let output = tempCanvas.toDataURL('image/jpeg', quality);
-            while ((output.length / 1024) > targetKB && quality > 0.1) {
-                quality -= 0.1;
+            
+            while ((output.length / 1024) > targetKB && quality > 0.01) {
+                quality -= 0.05;
                 output = tempCanvas.toDataURL('image/jpeg', quality);
             }
+
             const img = new Image();
             img.src = output;
             img.onload = () => {
