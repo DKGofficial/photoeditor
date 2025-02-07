@@ -1,129 +1,89 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const upload = document.getElementById('upload');
-    const downloadBtn = document.getElementById('download');
-    const applyResizeBtn = document.getElementById('applyResize');
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
 
-    const filters = {
-        brightness: document.getElementById('brightness'),
-        contrast: document.getElementById('contrast'),
-        grayscale: document.getElementById('grayscale'),
-        sepia: document.getElementById('sepia'),
-        invert: document.getElementById('invert'),
-        hueRotate: document.getElementById('hueRotate'),
-        saturate: document.getElementById('saturate')
-    };
+.editor-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+}
 
-    const resizeWidth = document.getElementById('resizeWidth');
-    const resizeHeight = document.getElementById('resizeHeight');
-    const resizeKB = document.getElementById('resizeKB');
+canvas {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
 
-    let img = new Image();
+.controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
 
-    upload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
+.control-group {
+    display: flex;
+    flex-direction: column;
+}
 
-        reader.onload = (event) => {
-            img.src = event.target.result;
-        };
+.control-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
 
-        reader.readAsDataURL(file);
-    });
+.control-group input[type="range"],
+.control-group input[type="number"] {
+    margin-bottom: 15px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
-    img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-    };
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
 
-    Object.values(filters).forEach(filter => {
-        filter.addEventListener('input', applyFilters);
-    });
+.buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s ease;
+}
 
-    function applyFilters() {
-        const filterString = `
-            brightness(${filters.brightness.value}%)
-            contrast(${filters.contrast.value}%)
-            grayscale(${filters.grayscale.value}%)
-            sepia(${filters.sepia.value}%)
-            invert(${filters.invert.value}%)
-            hue-rotate(${filters.hueRotate.value}deg)
-            saturate(${filters.saturate.value}%)
-        `;
+.buttons button:hover {
+    background-color: #0056b3;
+}
 
-        ctx.filter = filterString;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+input[type="file"] {
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .controls {
+        grid-template-columns: 1fr;
     }
 
-    applyResizeBtn.addEventListener('click', () => {
-        if (resizeWidth.value && resizeHeight.value) {
-            resizeCanvas(parseInt(resizeWidth.value), parseInt(resizeHeight.value));
-        } else if (resizeKB.value) {
-            resizeToTargetSize(parseInt(resizeKB.value) * 1024);
-        }
-    });
-
-    function resizeCanvas(newWidth, newHeight) {
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
-
-        tempCanvas.width = newWidth;
-        tempCanvas.height = newHeight;
-
-        tempCtx.drawImage(canvas, 0, 0, newWidth, newHeight);
-
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-        ctx.drawImage(tempCanvas, 0, 0);
+    .buttons {
+        flex-direction: column;
+        gap: 10px;
     }
-
-    function resizeToTargetSize(targetSize) {
-        let minQuality = 0.05;
-        let maxQuality = 1.0;
-        let iterations = 10; // Limit iterations to avoid infinite loops
-
-        function attemptResize(currentQuality, attempt = 1) {
-            canvas.toBlob(blob => {
-                if (Math.abs(blob.size - targetSize) < 1024 || attempt >= iterations) {
-                    downloadImage(blob);
-                } else if (blob.size > targetSize) {
-                    maxQuality = currentQuality;
-                } else {
-                    minQuality = currentQuality;
-                }
-
-                if (attempt < iterations) {
-                    currentQuality = (minQuality + maxQuality) / 2;
-                    attemptResize(currentQuality, attempt + 1);
-                }
-            }, 'image/jpeg', currentQuality);
-        }
-
-        attemptResize(0.75);
-    }
-
-    function downloadImage(blob) {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'edited-image.jpg';
-        link.click();
-    }
-
-    downloadBtn.addEventListener('click', () => {
-        if (resizeKB.value) {
-            resizeToTargetSize(parseInt(resizeKB.value) * 1024);
-        } else {
-            canvas.toBlob(blob => {
-                downloadImage(blob);
-            }, 'image/jpeg');
-        }
-    });
-
-    document.getElementById('reset').addEventListener('click', () => {
-        Object.values(filters).forEach(filter => filter.value = filter.defaultValue);
-        ctx.filter = 'none';
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    });
-});
+}
