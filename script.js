@@ -53,8 +53,18 @@ applyResize.addEventListener('click', () => {
     const height = parseInt(resizeHeight.value);
 
     if (width > 0 && height > 0) {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+
+        tempCtx.drawImage(image, 0, 0, width, height);
+
         canvas.width = width;
         canvas.height = height;
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(tempCanvas, 0, 0);
         applyFilters();
     }
 });
