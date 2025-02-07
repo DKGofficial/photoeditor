@@ -58,13 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     applyResizeBtn.addEventListener('click', () => {
-        let width = resizeWidth.value;
-        let height = resizeHeight.value;
-
-        if (width && height) {
-            resizeCanvas(width, height);
+        if (resizeWidth.value && resizeHeight.value) {
+            resizeCanvas(parseInt(resizeWidth.value), parseInt(resizeHeight.value));
         } else if (resizeKB.value) {
-            resizeToTargetSize(resizeKB.value * 1024);
+            resizeToTargetSize(parseInt(resizeKB.value) * 1024);
         }
     });
 
@@ -84,33 +81,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resizeToTargetSize(targetSize) {
         let quality = 0.9;
-        function compress() {
+
+        const adjustQuality = () => {
             canvas.toBlob(blob => {
                 if (blob.size > targetSize && quality > 0.1) {
                     quality -= 0.05;
-                    compress();
+                    adjustQuality();
+                } else if (blob.size < targetSize * 0.9 && quality < 0.95) {
+                    quality += 0.02;
+                    adjustQuality();
                 } else {
-                    const imgUrl = URL.createObjectURL(blob);
-                    const tempImg = new Image();
-                    tempImg.onload = () => {
-                        canvas.width = tempImg.width;
-                        canvas.height = tempImg.height;
-                        ctx.drawImage(tempImg, 0, 0);
-                    };
-                    tempImg.src = imgUrl;
+                    downloadImage(blob);
                 }
             }, 'image/jpeg', quality);
-        }
-        compress();
+        };
+
+        adjustQuality();
+    }
+
+    function downloadImage(blob) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'edited-image.jpg';
+        link.click();
     }
 
     downloadBtn.addEventListener('click', () => {
-        canvas.toBlob(blob => {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'edited-image.jpg';
-            link.click();
-        }, 'image/jpeg');
+        if (resizeKB.value) {
+            resizeToTargetSize(parseInt(resizeKB.value) * 1024);
+        } else {
+            canvas.toBlob(blob => {
+                downloadImage(blob);
+            }, 'image/jpeg');
+        }
     });
 
     document.getElementById('reset').addEventListener('click', () => {
