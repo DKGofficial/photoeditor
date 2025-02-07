@@ -20,13 +20,12 @@ canvas {
     max-width: 100%;
     border: 1px solid #ddd;
     margin-bottom: 20px;
-    border-radius: 5px;
 }
 
 .controls {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 10px;
 }
 
 .control-group {
@@ -37,12 +36,11 @@ canvas {
 .control-group label {
     margin-bottom: 5px;
     font-weight: bold;
-    color: #333;
 }
 
 .control-group input[type="range"],
 .control-group input[type="number"] {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -68,22 +66,11 @@ canvas {
     background-color: #0056b3;
 }
 
-h1 {
-    margin-bottom: 20px;
-    color: #333;
-}
-
 input[type="file"] {
     margin-bottom: 20px;
 }
 
-@media (max-width: 600px) {
-    .controls {
-        grid-template-columns: 1fr;
-    }
-
-    .buttons {
-        flex-direction: column;
-        gap: 10px;
-    }
+h1 {
+    margin-bottom: 20px;
+    color: #333;
 }
