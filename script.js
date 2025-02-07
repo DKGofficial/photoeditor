@@ -113,10 +113,10 @@ function resizeByKB(targetKB) {
 reset.addEventListener('click', () => {
     brightness.value = 100;
     contrast.value = 100;
-    grayscale.value = 0;
-    sepia.value = 0;
-    invert.value = 0;
-    hueRotate.value = 0;
+    grayscale.value = 100;
+    sepia.value = 100;
+    invert.value = 100;
+    hueRotate.value = 100;
     saturate.value = 100;
 
     image.src = originalSrc;
