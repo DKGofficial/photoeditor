@@ -1,129 +1,106 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const upload = document.getElementById('upload');
-    const downloadBtn = document.getElementById('download');
-    const applyResizeBtn = document.getElementById('applyResize');
+document.getElementById('upload').addEventListener('change', handleImageUpload);
 
-    const filters = {
-        brightness: document.getElementById('brightness'),
-        contrast: document.getElementById('contrast'),
-        grayscale: document.getElementById('grayscale'),
-        sepia: document.getElementById('sepia'),
-        invert: document.getElementById('invert'),
-        hueRotate: document.getElementById('hueRotate'),
-        saturate: document.getElementById('saturate')
-    };
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let originalImage = null;
 
-    const resizeWidth = document.getElementById('resizeWidth');
-    const resizeHeight = document.getElementById('resizeHeight');
-    const resizeKB = document.getElementById('resizeKB');
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-    let img = new Image();
-
-    upload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-
-        reader.onload = (event) => {
-            img.src = event.target.result;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            originalImage = img;
         };
-
-        reader.readAsDataURL(file);
-    });
-
-    img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+        img.src = e.target.result;
     };
+    reader.readAsDataURL(file);
+}
 
-    Object.values(filters).forEach(filter => {
-        filter.addEventListener('input', applyFilters);
-    });
+function applyFilters() {
+    const brightness = document.getElementById('brightness').value;
+    const contrast = document.getElementById('contrast').value;
+    const grayscale = document.getElementById('grayscale').value;
+    const sepia = document.getElementById('sepia').value;
+    const invert = document.getElementById('invert').value;
+    const hueRotate = document.getElementById('hueRotate').value;
+    const saturate = document.getElementById('saturate').value;
 
-    function applyFilters() {
-        const filterString = `
-            brightness(${filters.brightness.value}%)
-            contrast(${filters.contrast.value}%)
-            grayscale(${filters.grayscale.value}%)
-            sepia(${filters.sepia.value}%)
-            invert(${filters.invert.value}%)
-            hue-rotate(${filters.hueRotate.value}deg)
-            saturate(${filters.saturate.value}%)
-        `;
+    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) grayscale(${grayscale}%) sepia(${sepia}%) invert(${invert}%) hue-rotate(${hueRotate}deg) saturate(${saturate}%)`;
+    ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+}
 
-        ctx.filter = filterString;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+const controls = document.querySelectorAll('.controls input');
+controls.forEach(control => control.addEventListener('input', applyFilters));
+
+document.getElementById('applyResize').addEventListener('click', () => {
+    const width = parseInt(document.getElementById('resizeWidth').value);
+    const height = parseInt(document.getElementById('resizeHeight').value);
+    const targetKB = parseInt(document.getElementById('resizeKB').value);
+
+    if (targetKB > 0) {
+        resizeToTargetSize(targetKB);
+    } else if (width && height) {
+        resizeImage(width, height);
     }
+});
 
-    applyResizeBtn.addEventListener('click', () => {
-        if (resizeWidth.value && resizeHeight.value) {
-            resizeCanvas(parseInt(resizeWidth.value), parseInt(resizeHeight.value));
-        } else if (resizeKB.value) {
-            resizeToTargetSize(parseInt(resizeKB.value) * 1024);
-        }
-    });
+function resizeImage(width, height) {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = width;
+    tempCanvas.height = height;
+    tempCtx.drawImage(canvas, 0, 0, width, height);
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(tempCanvas, 0, 0);
+}
 
-    function resizeCanvas(newWidth, newHeight) {
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
+function resizeToTargetSize(targetKB) {
+    let quality = 0.9;
+    const targetBytes = targetKB * 1024;
+    let step = 0.05;
 
-        tempCanvas.width = newWidth;
-        tempCanvas.height = newHeight;
-
-        tempCtx.drawImage(canvas, 0, 0, newWidth, newHeight);
-
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-        ctx.drawImage(tempCanvas, 0, 0);
+    function attemptResize() {
+        canvas.toBlob(blob => {
+            if (blob.size > targetBytes && quality > step) {
+                quality -= step;
+                attemptResize();
+            } else if (blob.size < targetBytes && quality < 1) {
+                quality += step / 2;
+                attemptResize();
+            } else {
+                downloadBlob(blob);
+            }
+        }, 'image/jpeg', quality);
     }
+    attemptResize();
+}
 
-    function resizeToTargetSize(targetSize) {
-        let minQuality = 0.05;
-        let maxQuality = 1.0;
-        let iterations = 15; // Increased iterations for better accuracy
+function downloadBlob(blob) {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'edited_image.jpg';
+    link.click();
+}
 
-        function attemptResize(currentQuality, attempt = 1) {
-            canvas.toBlob(blob => {
-                if (Math.abs(blob.size - targetSize) < 1024 || attempt >= iterations) {
-                    downloadImage(blob);
-                } else if (blob.size > targetSize) {
-                    maxQuality = currentQuality;
-                } else {
-                    minQuality = currentQuality;
-                }
+document.getElementById('download').addEventListener('click', () => {
+    canvas.toBlob(blob => {
+        downloadBlob(blob);
+    }, 'image/jpeg', 1);
+});
 
-                if (attempt < iterations) {
-                    currentQuality = (minQuality + maxQuality) / 2;
-                    attemptResize(currentQuality, attempt + 1);
-                }
-            }, 'image/jpeg', currentQuality);
-        }
-
-        attemptResize(0.75);
-    }
-
-    function downloadImage(blob) {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'edited-image.jpg';
-        link.click();
-    }
-
-    downloadBtn.addEventListener('click', () => {
-        if (resizeKB.value) {
-            resizeToTargetSize(parseInt(resizeKB.value) * 1024);
-        } else {
-            canvas.toBlob(blob => {
-                downloadImage(blob);
-            }, 'image/jpeg');
-        }
-    });
-
-    document.getElementById('reset').addEventListener('click', () => {
-        Object.values(filters).forEach(filter => filter.value = filter.defaultValue);
+document.getElementById('reset').addEventListener('click', () => {
+    if (originalImage) {
         ctx.filter = 'none';
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    });
+        canvas.width = originalImage.width;
+        canvas.height = originalImage.height;
+        ctx.drawImage(originalImage, 0, 0);
+        controls.forEach(control => control.value = control.defaultValue);
+    }
 });
