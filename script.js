@@ -15,6 +15,7 @@ const resizeHeight = document.getElementById('resizeHeight');
 const resizeKB = document.getElementById('resizeKB');
 const applyResize = document.getElementById('applyResize');
 const reset = document.getElementById('reset');
+const download = document.getElementById('download');
 
 let image = new Image();
 let originalSrc = "";
@@ -113,12 +114,19 @@ function resizeByKB(targetKB) {
 reset.addEventListener('click', () => {
     brightness.value = 100;
     contrast.value = 100;
-    grayscale.value = 100;
-    sepia.value = 100;
-    invert.value = 100;
-    hueRotate.value = 100;
+    grayscale.value = 0;
+    sepia.value = 0;
+    invert.value = 0;
+    hueRotate.value = 0;
     saturate.value = 100;
 
     image.src = originalSrc;
     image.onload();
+});
+
+download.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = 'edited_image.png';
+    link.href = canvas.toDataURL();
+    link.click();
 });
