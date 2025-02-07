@@ -90,9 +90,14 @@ function downloadBlob(blob) {
 }
 
 document.getElementById('download').addEventListener('click', () => {
-    canvas.toBlob(blob => {
-        downloadBlob(blob);
-    }, 'image/jpeg', 1);
+    const targetKB = parseInt(document.getElementById('resizeKB').value);
+    if (targetKB > 0) {
+        resizeToTargetSize(targetKB);
+    } else {
+        canvas.toBlob(blob => {
+            downloadBlob(blob);
+        }, 'image/jpeg', 1);
+    }
 });
 
 document.getElementById('reset').addEventListener('click', () => {
