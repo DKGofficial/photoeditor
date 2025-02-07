@@ -66,21 +66,27 @@ applyResize.addEventListener('click', () => {
         if (targetKB > 0) {
             let quality = 1.0;
             let output = tempCanvas.toDataURL('image/jpeg', quality);
-            
-            while ((output.length / 1024) > targetKB && quality > 0.01) {
-                quality -= 0.05;
-                output = tempCanvas.toDataURL('image/jpeg', quality);
-            }
 
-            const img = new Image();
-            img.src = output;
-            img.onload = () => {
-                canvas.width = width;
-                canvas.height = height;
-                ctx.clearRect(0, 0, width, height);
-                ctx.drawImage(img, 0, 0);
-                applyFilters();
+            const adjustQuality = () => {
+                if ((output.length / 1024) > targetKB && quality > 0.01) {
+                    quality -= 0.01;
+                    output = tempCanvas.toDataURL('image/jpeg', quality);
+                    setTimeout(adjustQuality, 10);
+                } else {
+                    const img = new Image();
+                    img.src = output;
+                    img.onload = () => {
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.clearRect(0, 0, width, height);
+                        ctx.drawImage(img, 0, 0);
+                        applyFilters();
+                    };
+                }
             };
+
+            adjustQuality();
+
         } else {
             canvas.width = width;
             canvas.height = height;
@@ -94,10 +100,10 @@ applyResize.addEventListener('click', () => {
 reset.addEventListener('click', () => {
     brightness.value = 100;
     contrast.value = 100;
-    grayscale.value = 100;
-    sepia.value = 100;
-    invert.value = 100;
-    hueRotate.value = 100;
+    grayscale.value = 0;
+    sepia.value = 0;
+    invert.value = 0;
+    hueRotate.value = 0;
     saturate.value = 100;
 
     image.src = originalSrc;
