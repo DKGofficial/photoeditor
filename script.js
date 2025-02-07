@@ -62,39 +62,29 @@ function resizeImage(width, height) {
 }
 
 function resizeToTargetSize(targetKB) {
-    let minQuality = 0.1;
-    let maxQuality = 1.0;
     const targetBytes = targetKB * 1024;
-    let iteration = 0;
+    let minQuality = 0.01;
+    let maxQuality = 1.0;
+    let attempts = 0;
 
-    function attemptResize() {
-        iteration++;
+    function binarySearchQuality(minQ, maxQ) {
+        const quality = (minQ + maxQ) / 2;
         canvas.toBlob(blob => {
-            const currentSize = blob.size;
-            if (Math.abs(currentSize - targetBytes) <= 128 || iteration > 50) {
+            const sizeDiff = blob.size - targetBytes;
+            if (Math.abs(sizeDiff) < 512 || attempts > 30) {
                 downloadBlob(blob);
-            } else {
-                if (currentSize > targetBytes) {
-                    maxQuality = (maxQuality + minQuality) / 2;
-                } else {
-                    minQuality = (maxQuality + minQuality) / 2;
-                }
-                attemptResizeWithQuality((maxQuality + minQuality) / 2);
+                return;
             }
-        }, 'image/jpeg', (maxQuality + minQuality) / 2);
-    }
-
-    function attemptResizeWithQuality(quality) {
-        canvas.toBlob(blob => {
-            if (Math.abs(blob.size - targetBytes) <= 128) {
-                downloadBlob(blob);
+            attempts++;
+            if (sizeDiff > 0) {
+                binarySearchQuality(minQ, quality);
             } else {
-                attemptResize();
+                binarySearchQuality(quality, maxQ);
             }
         }, 'image/jpeg', quality);
     }
 
-    attemptResize();
+    binarySearchQuality(minQuality, maxQuality);
 }
 
 function downloadBlob(blob) {
