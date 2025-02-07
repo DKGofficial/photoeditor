@@ -64,21 +64,24 @@ function resizeImage(width, height) {
 function resizeToTargetSize(targetKB) {
     let quality = 0.9;
     const targetBytes = targetKB * 1024;
-    let step = 0.01;
+    let minQuality = 0.1;
+    let maxQuality = 1.0;
     let iteration = 0;
 
     function attemptResize() {
         iteration++;
         canvas.toBlob(blob => {
-            if (Math.abs(blob.size - targetBytes) < 512 || iteration > 20) {
+            const currentSize = blob.size;
+            if (Math.abs(currentSize - targetBytes) < 256 || iteration > 30) {
                 downloadBlob(blob);
             } else {
-                if (blob.size > targetBytes) {
-                    quality -= step;
+                if (currentSize > targetBytes) {
+                    maxQuality = quality;
+                    quality = (quality + minQuality) / 2;
                 } else {
-                    quality += step;
+                    minQuality = quality;
+                    quality = (quality + maxQuality) / 2;
                 }
-                quality = Math.max(0.1, Math.min(quality, 1));
                 attemptResize();
             }
         }, 'image/jpeg', quality);
