@@ -80,23 +80,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resizeToTargetSize(targetSize) {
-        let minQuality = 0.1;
+        let minQuality = 0.05;
         let maxQuality = 1.0;
+        let iterations = 10; // Limit iterations to avoid infinite loops
 
-        function attemptResize(currentQuality) {
+        function attemptResize(currentQuality, attempt = 1) {
             canvas.toBlob(blob => {
-                if (Math.abs(blob.size - targetSize) < 1024) {
+                if (Math.abs(blob.size - targetSize) < 1024 || attempt >= iterations) {
                     downloadImage(blob);
-                } else if (blob.size > targetSize && currentQuality > minQuality) {
+                } else if (blob.size > targetSize) {
                     maxQuality = currentQuality;
-                    currentQuality = (minQuality + maxQuality) / 2;
-                    attemptResize(currentQuality);
-                } else if (blob.size < targetSize && currentQuality < maxQuality) {
-                    minQuality = currentQuality;
-                    currentQuality = (minQuality + maxQuality) / 2;
-                    attemptResize(currentQuality);
                 } else {
-                    downloadImage(blob);
+                    minQuality = currentQuality;
+                }
+
+                if (attempt < iterations) {
+                    currentQuality = (minQuality + maxQuality) / 2;
+                    attemptResize(currentQuality, attempt + 1);
                 }
             }, 'image/jpeg', currentQuality);
         }
