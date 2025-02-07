@@ -5,6 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photo Editor</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .editor-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        canvas {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .control-group input[type="range"],
+        .control-group input[type="number"] {
+            margin-bottom: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="editor-container">
@@ -13,27 +78,45 @@
         <canvas id="canvas"></canvas>
 
         <div class="controls">
-            <h2>Filters</h2>
-            <label>Brightness: <input type="range" id="brightness" min="0" max="200" value="100"></label>
-            <label>Contrast: <input type="range" id="contrast" min="0" max="200" value="100"></label>
-            <label>Grayscale: <input type="range" id="grayscale" min="0" max="100" value="0"></label>
-            <label>Sepia: <input type="range" id="sepia" min="0" max="100" value="0"></label>
-            <label>Invert: <input type="range" id="invert" min="0" max="100" value="0"></label>
-            <label>Hue Rotate: <input type="range" id="hueRotate" min="0" max="360" value="0"></label>
-            <label>Saturate: <input type="range" id="saturate" min="0" max="200" value="100"></label>
+            <div class="control-group">
+                <label for="brightness">Brightness</label>
+                <input type="range" id="brightness" min="0" max="200" value="100">
+
+                <label for="contrast">Contrast</label>
+                <input type="range" id="contrast" min="0" max="200" value="100">
+
+                <label for="grayscale">Grayscale</label>
+                <input type="range" id="grayscale" min="0" max="100" value="0">
+
+                <label for="sepia">Sepia</label>
+                <input type="range" id="sepia" min="0" max="100" value="0">
+            </div>
+
+            <div class="control-group">
+                <label for="invert">Invert</label>
+                <input type="range" id="invert" min="0" max="100" value="0">
+
+                <label for="hueRotate">Hue Rotate</label>
+                <input type="range" id="hueRotate" min="0" max="360" value="0">
+
+                <label for="saturate">Saturate</label>
+                <input type="range" id="saturate" min="0" max="200" value="100">
+
+                <label for="resizeWidth">Resize Width (px)</label>
+                <input type="number" id="resizeWidth" placeholder="Width in px">
+
+                <label for="resizeHeight">Resize Height (px)</label>
+                <input type="number" id="resizeHeight" placeholder="Height in px">
+
+                <label for="resizeKB">Resize to Target Size (KB)</label>
+                <input type="number" id="resizeKB" placeholder="Size in KB">
+            </div>
         </div>
 
-        <div class="resize-controls">
-            <h2>Resize Options</h2>
-            <label>Width (px): <input type="number" id="resizeWidth"></label>
-            <label>Height (px): <input type="number" id="resizeHeight"></label>
-            <label>Target Size (KB): <input type="number" id="resizeKB"></label>
+        <div class="buttons">
             <button id="applyResize">Apply Resize</button>
-        </div>
-
-        <div class="action-buttons">
             <button id="download">Download Image</button>
-            <button id="reset">Reset</button>
+            <button id="reset">Reset Filters</button>
         </div>
     </div>
 
